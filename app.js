@@ -1,5 +1,5 @@
 /* ==========================================================================
-   MAIN GAME APPLICATION ENGINE
+   MAIN GAME APPLICATION ENGINE (FIXED & SYNCHRONIZED)
    ========================================================================== */
 const GameApp = {
   studentCount: 36,
@@ -9,7 +9,9 @@ const GameApp = {
   
   remainingStudents: [],
   eliminatedStudents: [],
+  usedQuestionIds: [], // Pelacak riwayat soal agar tidak berulang
   
+  // 4 Warna Baku Tim
   teams: [
     { name: 'Team Red', color: '#ef4444', score: 0 },
     { name: 'Team Blue', color: '#3b82f6', score: 0 },
@@ -94,6 +96,7 @@ const GameApp = {
   resetRemainingStudents() {
     this.remainingStudents = Array.from({ length: this.studentCount }, (_, i) => i + 1);
     this.eliminatedStudents = [];
+    this.usedQuestionIds = [];
     this.updateUI();
     this.drawWheel();
   },
@@ -165,6 +168,7 @@ const GameApp = {
     }
   },
 
+  /* PERBAIKAN: Hanya Menggunakan 4 Warna yang Konsisten dengan Warna Tim */
   drawWheel() {
     if (!this.ctx) return;
     const width = this.canvas.width;
@@ -180,21 +184,25 @@ const GameApp = {
       : Array.from({ length: this.studentCount }, (_, i) => i + 1);
 
     const sliceAngle = (2 * Math.PI) / list.length;
-    const colors = ['#f59e0b', '#06b6d4', '#10b981', '#6366f1', '#ec4899', '#8b5cf6'];
+    const teamColors = ['#ef4444', '#3b82f6', '#eab308', '#10b981']; // Red, Blue, Yellow, Green
 
     this.ctx.save();
     this.ctx.translate(centerX, centerY);
     this.ctx.rotate(this.currentAngle);
 
     for (let i = 0; i < list.length; i++) {
+      const studentNum = list[i];
       const angleStart = i * sliceAngle;
       const angleEnd = angleStart + sliceAngle;
+      
+      // Menggunakan rumus (studentNum - 1) % 4 agar warna slice persis sesuai timnya
+      const teamIndex = (studentNum - 1) % 4;
 
       this.ctx.beginPath();
       this.ctx.moveTo(0, 0);
       this.ctx.arc(0, 0, radius, angleStart, angleEnd);
       this.ctx.closePath();
-      this.ctx.fillStyle = colors[i % colors.length];
+      this.ctx.fillStyle = teamColors[teamIndex];
       this.ctx.fill();
       this.ctx.lineWidth = 2;
       this.ctx.strokeStyle = '#0f172a';
@@ -207,7 +215,7 @@ const GameApp = {
       this.ctx.font = list.length > 30 ? 'bold 13px Inter' : 'bold 18px Fredoka';
       this.ctx.shadowColor = 'rgba(0,0,0,0.6)';
       this.ctx.shadowBlur = 4;
-      this.ctx.fillText(`#${list[i]}`, radius - 18, 6);
+      this.ctx.fillText(`#${studentNum}`, radius - 18, 6);
       this.ctx.restore();
     }
 
@@ -291,22 +299,28 @@ const GameApp = {
     document.getElementById('modal-topic').classList.remove('hidden');
   },
 
+  /* PERBAIKAN: Pengacakan Soal & Pencegahan Soal Berulang */
   pickTopic(catKey) {
     document.getElementById('modal-topic').classList.add('hidden');
 
-    let availableQuestions = [];
-    if (catKey === 'random') {
-      availableQuestions = [...this.questionBank];
-    } else {
-      availableQuestions = this.questionBank.filter(q => q.category === catKey);
+    let pool = catKey === 'random' 
+      ? [...this.questionBank] 
+      : this.questionBank.filter(q => q.category === catKey);
+
+    // Filter soal yang belum pernah dipakai
+    let unusedPool = pool.filter(q => !this.usedQuestionIds.includes(q.id));
+
+    // Jika semua soal pada kategori tersebut sudah terpakai, reset riwayat untuk kategori ini
+    if (unusedPool.length === 0) {
+      const poolIds = pool.map(q => q.id);
+      this.usedQuestionIds = this.usedQuestionIds.filter(id => !poolIds.includes(id));
+      unusedPool = [...pool];
     }
 
-    if (availableQuestions.length === 0) {
-      availableQuestions = [...this.questionBank];
-    }
-
-    const selectedQ = availableQuestions[Math.floor(Math.random() * availableQuestions.length)];
+    // Ambil soal secara acak
+    const selectedQ = unusedPool[Math.floor(Math.random() * unusedPool.length)];
     this.currentQuestion = selectedQ;
+    this.usedQuestionIds.push(selectedQ.id);
 
     if (this.autoEliminate && this.remainingStudents.includes(this.currentDrawnStudent)) {
       this.remainingStudents = this.remainingStudents.filter(s => s !== this.currentDrawnStudent);
@@ -318,6 +332,26 @@ const GameApp = {
     this.startQuestionStage(selectedQ);
   },
 
+  /* PERBAIKAN: Pengacakan Huruf Otomatis untuk Unscramble Word */
+  scrambleWord(word) {
+    const cleanWord = word.trim().toUpperCase();
+    let chars = cleanWord.split('');
+    if (chars.length <= 1) return cleanWord;
+
+    // Lakukan pengocokan urutan karakter
+    for (let i = chars.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [chars[i], chars[j]] = [chars[j], chars[i]];
+    }
+
+    // Pastikan hasil acakan tidak sama persis dengan kata aslinya
+    if (chars.join('') === cleanWord) {
+      return this.scrambleWord(word);
+    }
+
+    return chars.join(' - ');
+  },
+
   startQuestionStage(q) {
     const catInfo = TOPIC_DEFINITIONS[q.category] || { name: q.category, icon: 'fa-star' };
     const fmtInfo = FORMAT_DEFINITIONS[q.format] || { badge: 'Challenge' };
@@ -325,7 +359,15 @@ const GameApp = {
     document.getElementById('stage-student-badge').textContent = `Student #${this.currentDrawnStudent}`;
     document.getElementById('stage-topic-badge').innerHTML = `<i class="fa-solid ${catInfo.icon}"></i> ${catInfo.name}`;
     document.getElementById('stage-format-badge').textContent = fmtInfo.badge;
-    document.getElementById('stage-question-text').textContent = `"${q.question}"`;
+
+    // Jika tipe soal Unscramble, acak huruf dari kata jawaban secara dinamis
+    let displayText = q.question;
+    if (q.format === 'unscramble') {
+      const scrambled = this.scrambleWord(q.answer);
+      displayText = `Unscramble the word: ${scrambled}`;
+    }
+
+    document.getElementById('stage-question-text').textContent = `"${displayText}"`;
     
     document.getElementById('hint-box').classList.add('hidden');
     document.getElementById('hint-text').textContent = q.hint || 'No hint available for this question.';
@@ -438,9 +480,11 @@ const GameApp = {
     document.getElementById('modal-question').classList.add('hidden');
   },
 
+  /* PERBAIKAN: Sinkronisasi Skor Kelompok Berdasarkan Warna & Nomor Siswa */
   addScore(pts) {
     if (this.mode === 'teams') {
-      const currentTeamIndex = (this.currentDrawnStudent || 1) % this.teams.length;
+      // Menghitung indeks tim secara konsisten: Student #1 = Red (0), #2 = Blue (1), #3 = Yellow (2), #4 = Green (3)
+      const currentTeamIndex = (this.currentDrawnStudent - 1) % this.teams.length;
       this.teams[currentTeamIndex].score += pts;
     } else {
       const currentScore = this.individualScores[this.currentDrawnStudent] || 0;
