@@ -13,10 +13,10 @@ const GameApp = {
   
   // 4 Warna Baku Tim
   teams: [
-    { name: 'Team Red', color: '#ef4444', score: 0 },
-    { name: 'Team Blue', color: '#3b82f6', score: 0 },
-    { name: 'Team Yellow', color: '#eab308', score: 0 },
-    { name: 'Team Green', color: '#10b981', score: 0 }
+    { name: 'Team Red', color: '#ef4444', score: 0 },    // Indeks 0 (Siswa 1, 5, 9...)
+    { name: 'Team Blue', color: '#3b82f6', score: 0 },   // Indeks 1 (Siswa 2, 6, 10...)
+    { name: 'Team Green', color: '#10b981', score: 0 },  // Indeks 2 (Siswa 3, 7, 11...)
+    { name: 'Team Yellow', color: '#eab308', score: 0 }  // Indeks 3 (Siswa 4, 8, 12...)
   ],
   individualScores: {},
 
@@ -189,7 +189,7 @@ const GameApp = {
       : Array.from({ length: this.studentCount }, (_, i) => i + 1);
 
     const sliceAngle = (2 * Math.PI) / list.length;
-    const teamColors = ['#ef4444', '#3b82f6', '#eab308', '#10b981'];
+    const teamColors = ['#ef4444', '#3b82f6', '#10b981', '#eab308']; // Merah, Biru, Hijau, Kuning
 
     this.ctx.save();
     this.ctx.translate(centerX, centerY);
