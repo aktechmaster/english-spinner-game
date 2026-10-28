@@ -1,5 +1,5 @@
 /* ==========================================================================
-   MAIN GAME APPLICATION ENGINE (FIXED & SYNCHRONIZED)
+   MAIN GAME APPLICATION ENGINE (FIXED & PROTECTED)
    ========================================================================== */
 const GameApp = {
   studentCount: 36,
@@ -9,7 +9,7 @@ const GameApp = {
   
   remainingStudents: [],
   eliminatedStudents: [],
-  usedQuestionIds: [], // Pelacak riwayat soal agar tidak berulang
+  usedQuestionIds: [],
   
   // 4 Warna Baku Tim
   teams: [
@@ -71,7 +71,13 @@ const GameApp = {
       if (savedMode) this.mode = savedMode;
 
       const savedBank = localStorage.getItem('eng_game_bank');
-      if (savedBank) this.questionBank = JSON.parse(savedBank);
+      if (savedBank) {
+        this.questionBank = JSON.parse(savedBank);
+        // Normalisasi kategori agar selalu huruf kecil (mencegah error case mismatch)
+        this.questionBank.forEach(q => {
+          if (q.category) q.category = q.category.toLowerCase();
+        });
+      }
 
       const savedTeams = localStorage.getItem('eng_game_teams');
       if (savedTeams) this.teams = JSON.parse(savedTeams);
@@ -168,7 +174,6 @@ const GameApp = {
     }
   },
 
-  /* PERBAIKAN: Hanya Menggunakan 4 Warna yang Konsisten dengan Warna Tim */
   drawWheel() {
     if (!this.ctx) return;
     const width = this.canvas.width;
@@ -184,7 +189,7 @@ const GameApp = {
       : Array.from({ length: this.studentCount }, (_, i) => i + 1);
 
     const sliceAngle = (2 * Math.PI) / list.length;
-    const teamColors = ['#ef4444', '#3b82f6', '#eab308', '#10b981']; // Red, Blue, Yellow, Green
+    const teamColors = ['#ef4444', '#3b82f6', '#eab308', '#10b981'];
 
     this.ctx.save();
     this.ctx.translate(centerX, centerY);
@@ -195,7 +200,6 @@ const GameApp = {
       const angleStart = i * sliceAngle;
       const angleEnd = angleStart + sliceAngle;
       
-      // Menggunakan rumus (studentNum - 1) % 4 agar warna slice persis sesuai timnya
       const teamIndex = (studentNum - 1) % 4;
 
       this.ctx.beginPath();
@@ -299,15 +303,32 @@ const GameApp = {
     document.getElementById('modal-topic').classList.remove('hidden');
   },
 
-  /* PERBAIKAN: Pengacakan Soal & Pencegahan Soal Berulang */
+  /* PERBAIKAN UTAMA: Pencarian Bebas Kapitalisasi + Proteksi Fallback */
   pickTopic(catKey) {
     document.getElementById('modal-topic').classList.add('hidden');
 
-    let pool = catKey === 'random' 
-      ? [...this.questionBank] 
-      : this.questionBank.filter(q => q.category === catKey);
+    const targetCat = String(catKey).toLowerCase();
 
-    // Filter soal yang belum pernah dipakai
+    // 1. Ambil pool pertanyaan (Gunakan case-insensitive matching)
+    let pool = [];
+    if (targetCat === 'random') {
+      pool = [...this.questionBank];
+    } else {
+      pool = this.questionBank.filter(q => q.category && q.category.toLowerCase() === targetCat);
+    }
+
+    // Fallback 1: Jika kategori tidak ditemukan/kosong, ambil dari seluruh questionBank
+    if (pool.length === 0) {
+      pool = [...this.questionBank];
+    }
+
+    // Fallback 2: Jika questionBank di storage rusak/kosong, muat ulang dari DEFAULT_QUESTIONS
+    if (pool.length === 0) {
+      this.questionBank = JSON.parse(JSON.stringify(DEFAULT_QUESTIONS));
+      pool = [...this.questionBank];
+    }
+
+    // 2. Filter soal yang belum pernah dipakai
     let unusedPool = pool.filter(q => !this.usedQuestionIds.includes(q.id));
 
     // Jika semua soal pada kategori tersebut sudah terpakai, reset riwayat untuk kategori ini
@@ -317,11 +338,21 @@ const GameApp = {
       unusedPool = [...pool];
     }
 
-    // Ambil soal secara acak
+    // 3. Ambil soal acak dari unusedPool
     const selectedQ = unusedPool[Math.floor(Math.random() * unusedPool.length)];
-    this.currentQuestion = selectedQ;
-    this.usedQuestionIds.push(selectedQ.id);
 
+    // Proteksi utama: Jika karena alasan apapun selectedQ masih tidak ada, hentikan aman
+    if (!selectedQ) {
+      console.error("Gagal memuat pertanyaan.");
+      return;
+    }
+
+    this.currentQuestion = selectedQ;
+    if (selectedQ.id) {
+      this.usedQuestionIds.push(selectedQ.id);
+    }
+
+    // Auto Eliminate
     if (this.autoEliminate && this.remainingStudents.includes(this.currentDrawnStudent)) {
       this.remainingStudents = this.remainingStudents.filter(s => s !== this.currentDrawnStudent);
       this.eliminatedStudents.push(this.currentDrawnStudent);
@@ -329,22 +360,21 @@ const GameApp = {
       this.drawWheel();
     }
 
+    // Panggil stage tampilan pertanyaan
     this.startQuestionStage(selectedQ);
   },
 
-  /* PERBAIKAN: Pengacakan Huruf Otomatis untuk Unscramble Word */
   scrambleWord(word) {
-    const cleanWord = word.trim().toUpperCase();
+    if (!word) return '';
+    const cleanWord = String(word).trim().toUpperCase();
     let chars = cleanWord.split('');
     if (chars.length <= 1) return cleanWord;
 
-    // Lakukan pengocokan urutan karakter
     for (let i = chars.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
       [chars[i], chars[j]] = [chars[j], chars[i]];
     }
 
-    // Pastikan hasil acakan tidak sama persis dengan kata aslinya
     if (chars.join('') === cleanWord) {
       return this.scrambleWord(word);
     }
@@ -353,17 +383,19 @@ const GameApp = {
   },
 
   startQuestionStage(q) {
-    const catInfo = TOPIC_DEFINITIONS[q.category] || { name: q.category, icon: 'fa-star' };
+    if (!q) return;
+
+    const catKey = (q.category || '').toLowerCase();
+    const catInfo = TOPIC_DEFINITIONS[catKey] || { name: q.category || 'General', icon: 'fa-star' };
     const fmtInfo = FORMAT_DEFINITIONS[q.format] || { badge: 'Challenge' };
 
-    document.getElementById('stage-student-badge').textContent = `Student #${this.currentDrawnStudent}`;
+    document.getElementById('stage-student-badge').textContent = `Student #${this.currentDrawnStudent || 1}`;
     document.getElementById('stage-topic-badge').innerHTML = `<i class="fa-solid ${catInfo.icon}"></i> ${catInfo.name}`;
     document.getElementById('stage-format-badge').textContent = fmtInfo.badge;
 
-    // Jika tipe soal Unscramble, acak huruf dari kata jawaban secara dinamis
     let displayText = q.question;
     if (q.format === 'unscramble') {
-      const scrambled = this.scrambleWord(q.answer);
+      const scrambled = this.scrambleWord(q.answer || '');
       displayText = `Unscramble the word: ${scrambled}`;
     }
 
@@ -374,9 +406,10 @@ const GameApp = {
     document.getElementById('hint-btn-text').textContent = 'Show Hint';
 
     document.getElementById('answer-box').classList.add('hidden');
-    document.getElementById('answer-text').textContent = q.answer;
+    document.getElementById('answer-text').textContent = q.answer || '';
     document.getElementById('answer-btn-text').textContent = 'Reveal Answer';
 
+    // Buka Modal Pertanyaan
     document.getElementById('modal-question').classList.remove('hidden');
 
     this.startTimer();
@@ -480,10 +513,8 @@ const GameApp = {
     document.getElementById('modal-question').classList.add('hidden');
   },
 
-  /* PERBAIKAN: Sinkronisasi Skor Kelompok Berdasarkan Warna & Nomor Siswa */
   addScore(pts) {
     if (this.mode === 'teams') {
-      // Menghitung indeks tim secara konsisten: Student #1 = Red (0), #2 = Blue (1), #3 = Yellow (2), #4 = Green (3)
       const currentTeamIndex = (this.currentDrawnStudent - 1) % this.teams.length;
       this.teams[currentTeamIndex].score += pts;
     } else {
@@ -578,7 +609,7 @@ const GameApp = {
 
     const filtered = filterCat === 'all' 
       ? this.questionBank 
-      : this.questionBank.filter(q => q.category === filterCat);
+      : this.questionBank.filter(q => q.category && q.category.toLowerCase() === filterCat.toLowerCase());
 
     document.getElementById('editor-total-count').textContent = `Total: ${filtered.length} questions`;
 
@@ -604,7 +635,7 @@ const GameApp = {
 
   addCustomQuestion(e) {
     e.preventDefault();
-    const cat = document.getElementById('new-q-cat').value;
+    const cat = document.getElementById('new-q-cat').value.toLowerCase();
     const format = document.getElementById('new-q-format').value;
     const text = document.getElementById('new-q-text').value;
     const ans = document.getElementById('new-q-ans').value;
@@ -652,6 +683,9 @@ const GameApp = {
         const imported = JSON.parse(e.target.result);
         if (Array.isArray(imported)) {
           this.questionBank = imported;
+          this.questionBank.forEach(q => {
+            if (q.category) q.category = q.category.toLowerCase();
+          });
           this.saveStorage();
           this.renderEditorList();
         }
