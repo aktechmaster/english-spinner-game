@@ -38,44 +38,8 @@
   <!-- FontAwesome Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-  <style>
-    body {
-      font-family: 'Inter', sans-serif;
-      user-select: none;
-    }
-    .font-display {
-      font-family: 'Fredoka', sans-serif;
-    }
-    /* Custom Scrollbar */
-    ::-webkit-scrollbar {
-      width: 8px;
-      height: 8px;
-    }
-    ::-webkit-scrollbar-track {
-      background: rgba(0, 0, 0, 0.1);
-    }
-    ::-webkit-scrollbar-thumb {
-      background: rgba(100, 116, 139, 0.5);
-      border-radius: 4px;
-    }
-    /* Glowing Effects for Projector High Contrast */
-    .glow-yellow {
-      box-shadow: 0 0 25px rgba(234, 179, 8, 0.4);
-    }
-    .glow-cyan {
-      box-shadow: 0 0 25px rgba(6, 182, 212, 0.4);
-    }
-    .glow-green {
-      box-shadow: 0 0 25px rgba(34, 197, 94, 0.4);
-    }
-    .pulse-slow {
-      animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-    }
-    @keyframes pulse {
-      0%, 100% { opacity: 1; transform: scale(1); }
-      50% { opacity: 0.95; transform: scale(1.02); }
-    }
-  </style>
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="style.css">
 </head>
 <body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col transition-colors duration-300 overflow-x-hidden">
 
@@ -121,7 +85,7 @@
           <span class="hidden sm:inline">Questions</span>
         </button>
 
-        <button onclick="GameApp.openScoreboardModal()" class="px-3.5 py-2 bg-amber-500 hover:bg-amber-400 text-slate-9 font-bold text-sm rounded-lg shadow-md transition flex items-center gap-2 text-slate-950">
+        <button onclick="GameApp.openScoreboardModal()" class="px-3.5 py-2 bg-amber-500 hover:bg-amber-400 font-bold text-sm rounded-lg shadow-md transition flex items-center gap-2 text-slate-950">
           <i class="fa-solid fa-trophy text-slate-900"></i>
           <span>Scores</span>
         </button>
@@ -132,7 +96,7 @@
   <!-- Main Dashboard Layout -->
   <main class="flex-1 max-w-7xl w-full mx-auto p-4 md:p-6 grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
     
-    <!-- Left Column: Wheel & Spinner Controls (7 cols on LG) -->
+    <!-- Left Column: Wheel & Spinner Controls -->
     <section class="lg:col-span-7 flex flex-col items-center justify-center bg-slate-800/50 border border-slate-700/60 rounded-2xl p-6 shadow-xl relative overflow-hidden">
       
       <!-- Top Info Badge -->
@@ -194,7 +158,7 @@
 
     </section>
 
-    <!-- Right Column: Live Leaderboard & Activity Log (5 cols on LG) -->
+    <!-- Right Column: Live Leaderboard & Activity Log -->
     <section class="lg:col-span-5 flex flex-col gap-6">
       
       <!-- Live Leaderboard Box -->
@@ -236,15 +200,12 @@
       </h2>
 
       <form id="setup-form" onsubmit="GameApp.saveSetup(event)" class="space-y-4">
-        
-        <!-- Total Students -->
         <div>
           <label class="block text-sm font-semibold text-slate-300 mb-1">Total Number of Students (1 - 60):</label>
           <input type="number" id="setup-student-count" min="1" max="60" value="36" required
                  class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-white font-semibold focus:outline-none focus:border-amber-400">
         </div>
 
-        <!-- Default Timer Seconds -->
         <div>
           <label class="block text-sm font-semibold text-slate-300 mb-1">Default Question Countdown (seconds):</label>
           <select id="setup-timer" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-white font-semibold focus:outline-none focus:border-amber-400">
@@ -255,7 +216,6 @@
           </select>
         </div>
 
-        <!-- Auto-Eliminate Toggle -->
         <div class="flex items-center justify-between p-3 bg-slate-900/60 rounded-xl border border-slate-700">
           <div>
             <div class="font-semibold text-sm text-slate-200">Auto-Eliminate Student Numbers</div>
@@ -264,7 +224,6 @@
           <input type="checkbox" id="setup-auto-eliminate" checked class="w-5 h-5 accent-amber-400 rounded cursor-pointer">
         </div>
 
-        <!-- Game Mode (Individual vs Teams) -->
         <div>
           <label class="block text-sm font-semibold text-slate-300 mb-1">Game Scoreboard Mode:</label>
           <select id="setup-mode" onchange="GameApp.toggleTeamInputs(this.value)" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-white font-semibold focus:outline-none focus:border-amber-400">
@@ -273,7 +232,6 @@
           </select>
         </div>
 
-        <!-- Team Names Config (Shown if Teams selected) -->
         <div id="team-names-container" class="space-y-2 border-t border-slate-700 pt-3">
           <label class="block text-xs font-bold text-slate-400 uppercase">Customize Team Names:</label>
           <div class="grid grid-cols-2 gap-2">
@@ -288,17 +246,14 @@
           <button type="button" onclick="GameApp.closeModal('modal-setup')" class="px-4 py-2 bg-slate-700 hover:bg-slate-600 rounded-xl text-sm font-semibold">Cancel</button>
           <button type="submit" class="px-5 py-2 bg-emerald-500 hover:bg-emerald-400 text-slate-950 rounded-xl text-sm font-bold shadow-lg">Save Settings</button>
         </div>
-
       </form>
     </div>
   </div>
-
 
   <!-- MODAL 2: TOPIC & CATEGORY SELECTOR -->
   <div id="modal-topic" class="fixed inset-0 bg-slate-950/85 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
     <div class="bg-slate-800 border-2 border-amber-400/80 rounded-3xl max-w-2xl w-full p-6 sm:p-8 shadow-2xl text-center relative glow-yellow">
       
-      <!-- Highlighted Student Badge -->
       <div class="inline-flex items-center gap-2 bg-gradient-to-r from-amber-500 to-rose-500 text-slate-950 font-display font-extrabold text-2xl px-6 py-2 rounded-full shadow-lg mb-4">
         <i class="fa-solid fa-star"></i>
         <span>STUDENT #<span id="drawn-student-num">12</span> IS CHOSEN!</span>
@@ -307,7 +262,6 @@
       <h3 class="font-display font-bold text-2xl text-white mb-2">Pick Your Challenge Category</h3>
       <p class="text-sm text-slate-300 mb-6">Select a category for Student #<span id="topic-student-ref">12</span> to answer in English!</p>
 
-      <!-- Category Buttons Grid -->
       <div id="topic-grid" class="grid grid-cols-2 sm:grid-cols-4 gap-3">
         <!-- Topic buttons injected dynamically -->
       </div>
@@ -317,15 +271,12 @@
           <i class="fa-solid fa-dice"></i> SURPRISE ME (RANDOM TOPIC)
         </button>
       </div>
-
     </div>
   </div>
-
 
   <!-- MODAL 3: QUESTION & STAGE PRESENTATION -->
   <div id="modal-question" class="fixed inset-0 bg-slate-950/95 backdrop-blur-md z-50 hidden flex flex-col items-center justify-between p-4 sm:p-6 overflow-y-auto">
     
-    <!-- Top Bar in Stage -->
     <div class="w-full max-w-5xl flex items-center justify-between border-b border-slate-800 pb-4">
       <div class="flex items-center gap-3">
         <span id="stage-student-badge" class="bg-amber-500 text-slate-950 font-display font-extrabold text-lg px-4 py-1.5 rounded-full shadow-md">
@@ -341,10 +292,7 @@
       </span>
     </div>
 
-    <!-- Center Stage Question Content -->
     <div class="w-full max-w-4xl my-auto py-6 flex flex-col items-center text-center">
-      
-      <!-- Timer Circle Canvas/SVG -->
       <div class="relative w-28 h-28 sm:w-36 sm:h-36 mb-6 flex items-center justify-center">
         <svg class="w-full h-full transform -rotate-90">
           <circle cx="50%" cy="50%" r="42%" stroke="currentColor" stroke-width="8" class="text-slate-800" fill="transparent"/>
@@ -353,24 +301,20 @@
         <span id="timer-text" class="absolute font-display font-extrabold text-3xl sm:text-5xl text-white">15</span>
       </div>
 
-      <!-- Question Text -->
       <h2 id="stage-question-text" class="font-display font-bold text-2xl sm:text-4xl lg:text-5xl text-white leading-tight mb-6 max-w-3xl drop-shadow-md">
         "Name 3 yellow fruits in 5 seconds!"
       </h2>
 
-      <!-- Hint Container (Initially Hidden) -->
       <div id="hint-box" class="hidden mb-4 bg-amber-500/15 border border-amber-500/40 rounded-xl px-5 py-2.5 max-w-md">
         <span class="text-xs font-bold text-amber-400 uppercase tracking-wider block mb-0.5"><i class="fa-solid fa-lightbulb"></i> Hint</span>
         <span id="hint-text" class="text-sm sm:text-base text-amber-200 font-semibold">First letter is 'B'</span>
       </div>
 
-      <!-- Reveal Answer Box (Initially Hidden) -->
       <div id="answer-box" class="hidden mb-6 bg-emerald-500/20 border border-emerald-500/40 rounded-2xl px-6 py-3 max-w-xl text-emerald-300 font-display font-bold text-2xl sm:text-3xl shadow-lg">
         <span class="text-xs font-bold text-emerald-400 uppercase tracking-wider block mb-1">Answer</span>
         <span id="answer-text">Banana, Lemon, Pineapple</span>
       </div>
 
-      <!-- Lifeline & Help Toggles -->
       <div class="flex flex-wrap justify-center gap-3">
         <button onclick="GameApp.toggleHint()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-xl text-sm font-semibold text-amber-300 transition flex items-center gap-2">
           <i class="fa-solid fa-lightbulb"></i> <span id="hint-btn-text">Show Hint</span>
@@ -384,48 +328,37 @@
           <i class="fa-solid fa-eye"></i> <span id="answer-btn-text">Reveal Answer</span>
         </button>
       </div>
-
     </div>
 
-    <!-- Teacher Action Control Bar (Keyboard Shortcuts Integrated) -->
     <div class="w-full max-w-5xl bg-slate-900 border border-slate-800 rounded-2xl p-4 flex flex-wrap items-center justify-between gap-4 shadow-2xl">
-      
       <div class="text-xs text-slate-400 hidden md:block">
         <span class="font-bold text-slate-300">Shortcuts:</span> <kbd class="px-1.5 py-0.5 bg-slate-800 border rounded text-slate-300 font-mono">1/C</kbd> Correct • <kbd class="px-1.5 py-0.5 bg-slate-800 border rounded text-slate-300 font-mono">2/S</kbd> Steal • <kbd class="px-1.5 py-0.5 bg-slate-800 border rounded text-slate-300 font-mono">3/W</kbd> Wrong
       </div>
 
       <div class="flex items-center flex-wrap gap-2 sm:gap-3 w-full md:w-auto justify-center">
-        <!-- CORRECT BUTTON -->
         <button onclick="GameApp.handleAnswerResult(true)" class="flex-1 sm:flex-initial px-5 py-3 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-display font-bold text-lg rounded-xl shadow-lg transition flex items-center justify-center gap-2">
           <i class="fa-solid fa-circle-check text-xl"></i> Correct (+10)
         </button>
 
-        <!-- STEAL / PASS BUTTON -->
         <button onclick="GameApp.handleAnswerResult('steal')" class="flex-1 sm:flex-initial px-4 py-3 bg-amber-500 hover:bg-amber-400 text-slate-950 font-display font-bold text-lg rounded-xl shadow-lg transition flex items-center justify-center gap-2">
           <i class="fa-solid fa-bolt text-xl"></i> Steal Turn
         </button>
 
-        <!-- WRONG BUTTON -->
         <button onclick="GameApp.handleAnswerResult(false)" class="flex-1 sm:flex-initial px-4 py-3 bg-rose-600 hover:bg-rose-500 text-white font-display font-bold text-lg rounded-xl shadow-lg transition flex items-center justify-center gap-2">
           <i class="fa-solid fa-circle-xmark text-xl"></i> Wrong (0)
         </button>
 
-        <!-- SKIP / NEXT BUTTON -->
         <button onclick="GameApp.closeQuestionModal()" class="px-4 py-3 bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold text-sm rounded-xl border border-slate-700 transition">
           <i class="fa-solid fa-forward"></i> Next
         </button>
       </div>
-
     </div>
-
   </div>
-
 
   <!-- MODAL 4: QUESTION BANK EDITOR -->
   <div id="modal-editor" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
     <div class="bg-slate-800 border border-slate-700 rounded-2xl max-w-4xl w-full max-h-[90vh] flex flex-col shadow-2xl relative overflow-hidden">
       
-      <!-- Editor Header -->
       <div class="p-5 border-b border-slate-700 flex items-center justify-between">
         <h2 class="font-display font-bold text-xl text-white flex items-center gap-2">
           <i class="fa-solid fa-book-bookmark text-cyan-400"></i> Question Bank Manager
@@ -435,7 +368,6 @@
         </button>
       </div>
 
-      <!-- Filter Bar & Import/Export -->
       <div class="p-4 bg-slate-900/60 border-b border-slate-700 flex flex-wrap items-center justify-between gap-3 text-sm">
         <div class="flex items-center gap-2">
           <select id="editor-category-filter" onchange="GameApp.renderEditorList()" class="bg-slate-800 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white">
@@ -466,7 +398,6 @@
         </div>
       </div>
 
-      <!-- Add New Question Form (Collapsible/Inline) -->
       <form id="add-question-form" onsubmit="GameApp.addCustomQuestion(event)" class="p-4 bg-slate-900/30 border-b border-slate-700/80 grid grid-cols-1 sm:grid-cols-12 gap-2 text-xs">
         <div class="sm:col-span-3">
           <select id="new-q-cat" class="w-full bg-slate-800 border border-slate-700 rounded px-2.5 py-1.5 text-white" required>
@@ -503,7 +434,6 @@
         </div>
       </form>
 
-      <!-- Questions List Table -->
       <div class="flex-1 overflow-y-auto p-4">
         <div id="editor-questions-list" class="space-y-2">
           <!-- Question items rendered dynamically -->
@@ -512,7 +442,6 @@
 
     </div>
   </div>
-
 
   <!-- MODAL 5: DETAILED SCOREBOARD & MANUAL ADJUST -->
   <div id="modal-scoreboard" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
@@ -541,1043 +470,7 @@
     </div>
   </div>
 
-
-  <!-- APPLICATION JAVASCRIPT ENGINE -->
-  <script>
-    /* ==========================================================================
-       1. WEB AUDIO SYNTHESIZER ENGINE (Zero External Sound Files Required)
-       ========================================================================== */
-    const SoundEngine = {
-      ctx: null,
-      muted: false,
-
-      init() {
-        if (!this.ctx) {
-          const AudioContext = window.AudioContext || window.webkitAudioContext;
-          this.ctx = new AudioContext();
-        }
-        if (this.ctx.state === 'suspended') {
-          this.ctx.resume();
-        }
-      },
-
-      tick() {
-        if (this.muted) return;
-        this.init();
-        try {
-          const osc = this.ctx.createOscillator();
-          const gain = this.ctx.createGain();
-          osc.type = 'triangle';
-          osc.frequency.setValueAtTime(520, this.ctx.currentTime);
-          osc.frequency.exponentialRampToValueAtTime(120, this.ctx.currentTime + 0.04);
-          gain.gain.setValueAtTime(0.12, this.ctx.currentTime);
-          gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.04);
-          osc.connect(gain);
-          gain.connect(this.ctx.destination);
-          osc.start();
-          osc.stop(this.ctx.currentTime + 0.04);
-        } catch(e){}
-      },
-
-      spinEnd() {
-        if (this.muted) return;
-        this.init();
-        try {
-          const osc = this.ctx.createOscillator();
-          const gain = this.ctx.createGain();
-          osc.type = 'sine';
-          osc.frequency.setValueAtTime(440, this.ctx.currentTime);
-          osc.frequency.exponentialRampToValueAtTime(880, this.ctx.currentTime + 0.25);
-          gain.gain.setValueAtTime(0.2, this.ctx.currentTime);
-          gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.3);
-          osc.connect(gain);
-          gain.connect(this.ctx.destination);
-          osc.start();
-          osc.stop(this.ctx.currentTime + 0.3);
-        } catch(e){}
-      },
-
-      fanfare() {
-        if (this.muted) return;
-        this.init();
-        try {
-          const notes = [523.25, 659.25, 783.99, 1046.50]; // C5, E5, G5, C6
-          notes.forEach((freq, idx) => {
-            const osc = this.ctx.createOscillator();
-            const gain = this.ctx.createGain();
-            osc.type = 'triangle';
-            osc.frequency.setValueAtTime(freq, this.ctx.currentTime + idx * 0.09);
-            gain.gain.setValueAtTime(0.2, this.ctx.currentTime + idx * 0.09);
-            gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + idx * 0.09 + 0.25);
-            osc.connect(gain);
-            gain.connect(this.ctx.destination);
-            osc.start(this.ctx.currentTime + idx * 0.09);
-            osc.stop(this.ctx.currentTime + idx * 0.09 + 0.25);
-          });
-        } catch(e){}
-      },
-
-      buzzer() {
-        if (this.muted) return;
-        this.init();
-        try {
-          const osc = this.ctx.createOscillator();
-          const gain = this.ctx.createGain();
-          osc.type = 'sawtooth';
-          osc.frequency.setValueAtTime(160, this.ctx.currentTime);
-          osc.frequency.linearRampToValueAtTime(90, this.ctx.currentTime + 0.35);
-          gain.gain.setValueAtTime(0.25, this.ctx.currentTime);
-          gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.35);
-          osc.connect(gain);
-          gain.connect(this.ctx.destination);
-          osc.start();
-          osc.stop(this.ctx.currentTime + 0.35);
-        } catch(e){}
-      },
-
-      timerBeep(isLow = false) {
-        if (this.muted) return;
-        this.init();
-        try {
-          const osc = this.ctx.createOscillator();
-          const gain = this.ctx.createGain();
-          osc.type = 'sine';
-          osc.frequency.setValueAtTime(isLow ? 880 : 440, this.ctx.currentTime);
-          gain.gain.setValueAtTime(0.1, this.ctx.currentTime);
-          gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.08);
-          osc.connect(gain);
-          gain.connect(this.ctx.destination);
-          osc.start();
-          osc.stop(this.ctx.currentTime + 0.08);
-        } catch(e){}
-      }
-    };
-
-
-    /* ==========================================================================
-       2. CANVAS CONFETTI ENGINE
-       ========================================================================== */
-    const ConfettiEngine = {
-      canvas: null,
-      ctx: null,
-      particles: [],
-      animId: null,
-
-      init() {
-        this.canvas = document.getElementById('confetti-canvas');
-        this.ctx = this.canvas.getContext('2d');
-        this.resize();
-        window.addEventListener('resize', () => this.resize());
-      },
-
-      resize() {
-        if (this.canvas) {
-          this.canvas.width = window.innerWidth;
-          this.canvas.height = window.innerHeight;
-        }
-      },
-
-      burst() {
-        this.particles = [];
-        const colors = ['#f59e0b', '#10b981', '#6366f1', '#ec4899', '#06b6d4', '#eab308'];
-        for (let i = 0; i < 120; i++) {
-          this.particles.push({
-            x: window.innerWidth / 2,
-            y: window.innerHeight / 2 - 50,
-            vx: (Math.random() - 0.5) * 18,
-            vy: (Math.random() - 0.7) * 18,
-            size: Math.random() * 8 + 4,
-            color: colors[Math.floor(Math.random() * colors.length)],
-            rotation: Math.random() * 360,
-            rSpeed: (Math.random() - 0.5) * 10,
-            opacity: 1
-          });
-        }
-
-        if (this.animId) cancelAnimationFrame(this.animId);
-        this.animate();
-      },
-
-      animate() {
-        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-        let active = false;
-
-        this.particles.forEach(p => {
-          if (p.opacity <= 0) return;
-          active = true;
-          p.x += p.vx;
-          p.y += p.vy;
-          p.vy += 0.4; // gravity
-          p.rotation += p.rSpeed;
-          p.opacity -= 0.012;
-
-          this.ctx.save();
-          this.ctx.translate(p.x, p.y);
-          this.ctx.rotate((p.rotation * Math.PI) / 180);
-          this.ctx.globalAlpha = Math.max(0, p.opacity);
-          this.ctx.fillStyle = p.color;
-          this.ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size);
-          this.ctx.restore();
-        });
-
-        if (active) {
-          this.animId = requestAnimationFrame(() => this.animate());
-        } else {
-          this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-        }
-      }
-    };
-
-
-    /* ==========================================================================
-       3. DEFAULT QUESTION DATABASE (60+ English Questions)
-       ========================================================================== */
-    const DEFAULT_QUESTIONS = [
-      // FRUITS & VEGETABLES
-      { id: 'f1', category: 'fruits', format: 'three_in_five', question: 'Name 3 yellow fruits in 5 seconds!', hint: 'Think of tropical fruits.', answer: 'Banana, Lemon, Pineapple, Mango' },
-      { id: 'f2', category: 'fruits', format: 'riddle', question: 'I am long and yellow. Monkeys love to eat me. What am I?', hint: 'Starts with B.', answer: 'Banana' },
-      { id: 'f3', category: 'fruits', format: 'unscramble', question: 'Unscramble the fruit: A - P - P - L - E', hint: 'Red or green crunchy fruit.', answer: 'APPLE' },
-      { id: 'f4', category: 'fruits', format: 'emoji', question: 'Guess the word: 🔴 + 🍏 = ?', hint: 'A red fruit.', answer: 'Red Apple / Cherry' },
-      { id: 'f5', category: 'fruits', format: 'three_in_five', question: 'Name 3 green vegetables in 5 seconds!', hint: 'Healthy salad items.', answer: 'Broccoli, Spinach, Cucumber, Lettuce' },
-      { id: 'f6', category: 'fruits', format: 'riddle', question: 'I am orange, long, and rabbits love to eat me. What am I?', hint: 'Starts with C.', answer: 'Carrot' },
-      { id: 'f7', category: 'fruits', format: 'unscramble', question: 'Unscramble: O - R - A - N - G - E', hint: 'A fruit and a color.', answer: 'ORANGE' },
-      { id: 'f8', category: 'fruits', format: 'three_in_five', question: 'Name 3 fruits that have seeds inside in 5 seconds!', hint: 'Watermelon is one.', answer: 'Watermelon, Apple, Orange, Grape' },
-
-      // ANIMALS & WILDLIFE
-      { id: 'a1', category: 'animals', format: 'three_in_five', question: 'Name 3 animals that can fly in 5 seconds!', hint: 'Birds or insects.', answer: 'Eagle, Bat, Bee, Butterfly, Parrot' },
-      { id: 'a2', category: 'animals', format: 'riddle', question: 'I am the King of the Jungle and I roar loudly. What am I?', hint: 'Big wild cat.', answer: 'Lion' },
-      { id: 'a3', category: 'animals', format: 'unscramble', question: 'Unscramble: E - L - E - P - H - A - N - T', hint: 'Has a long trunk and big ears.', answer: 'ELEPHANT' },
-      { id: 'a4', category: 'animals', format: 'emoji', question: 'Guess the word: 🐱 + 👤 = ?', hint: 'A house pet.', answer: 'Cat' },
-      { id: 'a5', category: 'animals', format: 'three_in_five', question: 'Name 3 animals that live in the ocean in 5 seconds!', hint: 'Sea creatures.', answer: 'Dolphin, Shark, Whale, Octopus, Fish' },
-      { id: 'a6', category: 'animals', format: 'riddle', question: 'I have a long neck so I can eat leaves from tall trees. What am I?', hint: 'Starts with G.', answer: 'Giraffe' },
-      { id: 'a7', category: 'animals', format: 'unscramble', question: 'Unscramble: D - O - L - P - H - I - N', hint: 'Smart sea mammal.', answer: 'DOLPHIN' },
-      { id: 'a8', category: 'animals', format: 'three_in_five', question: 'Name 3 farm animals in 5 seconds!', hint: 'Animals raised by farmers.', answer: 'Cow, Chicken, Sheep, Horse, Pig' },
-
-      // FOOD & DRINKS
-      { id: 'fd1', category: 'food', format: 'three_in_five', question: 'Name 3 breakfast foods in 5 seconds!', hint: 'Foods you eat in the morning.', answer: 'Eggs, Bread, Milk, Cereal, Pancakes' },
-      { id: 'fd2', category: 'food', format: 'riddle', question: 'I am cold, sweet, and come in flavors like chocolate and vanilla. What am I?', hint: 'Great on a hot day.', answer: 'Ice Cream' },
-      { id: 'fd3', category: 'food', format: 'unscramble', question: 'Unscramble: P - I - Z - Z - A', hint: 'Italian round food with cheese.', answer: 'PIZZA' },
-      { id: 'fd4', category: 'food', format: 'emoji', question: 'Guess the word: 🔥 + 🐕 = ?', hint: 'Popular street food.', answer: 'Hotdog' },
-      { id: 'fd5', category: 'food', format: 'three_in_five', question: 'Name 3 sweet drinks in 5 seconds!', hint: 'Beverages.', answer: 'Juice, Soda, Milkshake, Tea, Coffee' },
-      { id: 'fd6', category: 'food', format: 'riddle', question: 'I am made of two slices of bread with meat or cheese inside. What am I?', hint: 'Starts with S.', answer: 'Sandwich' },
-      { id: 'fd7', category: 'food', format: 'unscramble', question: 'Unscramble: B - U - R - G - E - R', hint: 'Fast food sandwich.', answer: 'BURGER' },
-      { id: 'fd8', category: 'food', format: 'three_in_five', question: 'Name 3 Italian foods in 5 seconds!', hint: 'Pasta is one.', answer: 'Pizza, Spaghetti, Lasagna, Gelato' },
-
-      // COUNTRIES & PLACES
-      { id: 'c1', category: 'countries', format: 'three_in_five', question: 'Name 3 countries in Asia in 5 seconds!', hint: 'Indonesia is one!', answer: 'Indonesia, Japan, China, Korea, Thailand' },
-      { id: 'c2', category: 'countries', format: 'riddle', question: 'I am a famous country known for sushi, anime, and Mount Fuji. What country am I?', hint: 'Capital is Tokyo.', answer: 'Japan' },
-      { id: 'c3', category: 'countries', format: 'unscramble', question: 'Unscramble: C - H - I - N - A', hint: 'Great Wall country.', answer: 'CHINA' },
-      { id: 'c4', category: 'countries', format: 'three_in_five', question: 'Name 3 places in a school in 5 seconds!', hint: 'Where do you go?', answer: 'Classroom, Library, Canteen, Playground, Lab' },
-      { id: 'c5', category: 'countries', format: 'riddle', question: 'You come to this room to read and borrow books quietly. What place is it?', hint: 'Starts with L.', answer: 'Library' },
-      { id: 'c6', category: 'countries', format: 'unscramble', question: 'Unscramble: B - E - A - C - H', hint: 'Sand and sea waves.', answer: 'BEACH' },
-      { id: 'c7', category: 'countries', format: 'three_in_five', question: 'Name 3 English-speaking countries in 5 seconds!', hint: 'USA, UK...', answer: 'USA, UK, Australia, Canada, New Zealand' },
-
-      // JOBS & PROFESSIONS
-      { id: 'j1', category: 'jobs', format: 'three_in_five', question: 'Name 3 community workers in 5 seconds!', hint: 'People who help us.', answer: 'Doctor, Teacher, Police Officer, Firefighter' },
-      { id: 'j2', category: 'jobs', format: 'riddle', question: 'I put out dangerous fires and drive a big red truck. What is my job?', hint: 'Starts with F.', answer: 'Firefighter' },
-      { id: 'j3', category: 'jobs', format: 'unscramble', question: 'Unscramble: D - O - C - T - O - R', hint: 'Works in a hospital.', answer: 'DOCTOR' },
-      { id: 'j4', category: 'jobs', format: 'emoji', question: 'Guess the job: ✈️ + 👨‍✈️ = ?', hint: 'Flies airplanes.', answer: 'Pilot' },
-      { id: 'j5', category: 'jobs', format: 'three_in_five', question: 'Name 3 jobs that wear a uniform in 5 seconds!', hint: 'Police, Doctor...', answer: 'Police, Nurse, Pilot, Soldier, Chef' },
-      { id: 'j6', category: 'jobs', format: 'riddle', question: 'I cook delicious meals in a restaurant kitchen. What am I?', hint: 'Starts with C.', answer: 'Chef / Cook' },
-      { id: 'j7', category: 'jobs', format: 'unscramble', question: 'Unscramble: T - E - A - C - H - E - R', hint: 'Person standing in front of your class!', answer: 'TEACHER' },
-
-      // ACTIONS & HOBBIES
-      { id: 'act1', category: 'actions', format: 'three_in_five', question: 'Name 3 sports played with a ball in 5 seconds!', hint: 'Football...', answer: 'Football, Basketball, Tennis, Volleyball' },
-      { id: 'act2', category: 'actions', format: 'riddle', question: 'You do this action with your feet to move fast, faster than walking. What is it?', hint: 'Starts with R.', answer: 'Running' },
-      { id: 'act3', category: 'actions', format: 'unscramble', question: 'Unscramble: S - W - I - M - M - I - N - G', hint: 'Moving in water.', answer: 'SWIMMING' },
-      { id: 'act4', category: 'actions', format: 'three_in_five', question: 'Name 3 outdoor activities in 5 seconds!', hint: 'Fun outside.', answer: 'Cycling, Hiking, Running, Camping, Fishing' },
-      { id: 'act5', category: 'actions', format: 'riddle', question: 'You use headphones or speakers to enjoy songs. What action is this?', hint: 'Listening to...', answer: 'Listening to Music' },
-      { id: 'act6', category: 'actions', format: 'unscramble', question: 'Unscramble: D - A - N - C - I - N - G', hint: 'Moving your body to rhythm.', answer: 'DANCING' },
-
-      // EVERYDAY OBJECTS
-      { id: 'o1', category: 'objects', format: 'three_in_five', question: 'Name 3 things inside your school bag in 5 seconds!', hint: 'Stationery.', answer: 'Pencil, Book, Eraser, Ruler, Pen' },
-      { id: 'o2', category: 'objects', format: 'riddle', question: 'I tell you the time of day and tick on the wall or wrist. What am I?', hint: 'Has two hands.', answer: 'Clock / Watch' },
-      { id: 'o3', category: 'objects', format: 'unscramble', question: 'Unscramble: P - E - N - C - I - L', hint: 'Used for writing or drawing.', answer: 'PENCIL' },
-      { id: 'o4', category: 'objects', format: 'emoji', question: 'Guess the word: 🌧️ + 🏹 = ?', hint: 'Colors in the sky after rain.', answer: 'Rainbow' },
-      { id: 'o5', category: 'objects', format: 'three_in_five', question: 'Name 3 electrical devices in a house in 5 seconds!', hint: 'TV...', answer: 'TV, Fridge, Computer, Fan, Lamp' },
-      { id: 'o6', category: 'objects', format: 'riddle', question: 'I keep your food and drinks cold so they do not spoil. What am I?', hint: 'In the kitchen.', answer: 'Refrigerator / Fridge' },
-      { id: 'o7', category: 'objects', format: 'unscramble', question: 'Unscramble: C - O - M - P - U - T - E - R', hint: 'Digital device for working or gaming.', answer: 'COMPUTER' }
-    ];
-
-    const TOPIC_DEFINITIONS = {
-      fruits: { name: 'Fruits & Veggies', icon: 'fa-apple-whole', color: 'from-rose-500 to-amber-500' },
-      animals: { name: 'Animals & Wildlife', icon: 'fa-paw', color: 'from-emerald-500 to-teal-600' },
-      food: { name: 'Food & Drinks', icon: 'fa-pizza-slice', color: 'from-amber-500 to-orange-600' },
-      countries: { name: 'Countries & Places', icon: 'fa-earth-americas', color: 'from-blue-500 to-indigo-600' },
-      jobs: { name: 'Jobs & Professions', icon: 'fa-user-tie', color: 'from-purple-500 to-pink-600' },
-      actions: { name: 'Actions & Hobbies', icon: 'fa-person-running', color: 'from-cyan-500 to-blue-600' },
-      objects: { name: 'Everyday Objects', icon: 'fa-box-open', color: 'from-violet-500 to-purple-600' }
-    };
-
-    const FORMAT_DEFINITIONS = {
-      three_in_five: { title: '3-in-5 Challenge', badge: '⚡ 3-in-5' },
-      riddle: { title: 'English Riddle', badge: '🧩 Riddle' },
-      unscramble: { title: 'Word Unscramble', badge: '🔤 Unscramble' },
-      emoji: { title: 'Emoji Guess', badge: '🖼️ Emoji Guess' }
-    };
-
-
-    /* ==========================================================================
-       4. MAIN GAME APPLICATION ENGINE
-       ========================================================================== */
-    const GameApp = {
-      // Configuration & State
-      studentCount: 36,
-      timerDuration: 15,
-      autoEliminate: true,
-      mode: 'teams', // 'teams' | 'individual'
-      
-      remainingStudents: [],
-      eliminatedStudents: [],
-      
-      teams: [
-        { name: 'Team Red', color: '#ef4444', score: 0 },
-        { name: 'Team Blue', color: '#3b82f6', score: 0 },
-        { name: 'Team Yellow', color: '#eab308', score: 0 },
-        { name: 'Team Green', color: '#10b981', score: 0 }
-      ],
-      individualScores: {}, // studentNum -> score
-
-      questionBank: [],
-      currentDrawnStudent: null,
-      currentQuestion: null,
-      
-      // Timer state
-      timerInterval: null,
-      timeLeft: 15,
-
-      // Wheel Physics State
-      canvas: null,
-      ctx: null,
-      currentAngle: 0,
-      isSpinning: false,
-      lastTickSlice: -1,
-
-      init() {
-        // Load saved state or default
-        this.loadStorage();
-        if (!this.questionBank || this.questionBank.length === 0) {
-          this.questionBank = JSON.parse(JSON.stringify(DEFAULT_QUESTIONS));
-        }
-
-        ConfettiEngine.init();
-        this.initCanvas();
-        this.setupKeyboardShortcuts();
-
-        if (this.remainingStudents.length === 0) {
-          this.resetRemainingStudents();
-        }
-
-        this.updateUI();
-        this.drawWheel();
-      },
-
-      initCanvas() {
-        this.canvas = document.getElementById('spinner-canvas');
-        this.ctx = this.canvas.getContext('2d');
-      },
-
-      loadStorage() {
-        try {
-          const savedCount = localStorage.getItem('eng_game_count');
-          if (savedCount) this.studentCount = parseInt(savedCount, 10);
-
-          const savedTimer = localStorage.getItem('eng_game_timer');
-          if (savedTimer) this.timerDuration = parseInt(savedTimer, 10);
-
-          const savedAuto = localStorage.getItem('eng_game_auto');
-          if (savedAuto !== null) this.autoEliminate = savedAuto === 'true';
-
-          const savedMode = localStorage.getItem('eng_game_mode');
-          if (savedMode) this.mode = savedMode;
-
-          const savedBank = localStorage.getItem('eng_game_bank');
-          if (savedBank) this.questionBank = JSON.parse(savedBank);
-
-          const savedTeams = localStorage.getItem('eng_game_teams');
-          if (savedTeams) this.teams = JSON.parse(savedTeams);
-
-          const savedIndiv = localStorage.getItem('eng_game_indiv');
-          if (savedIndiv) this.individualScores = JSON.parse(savedIndiv);
-        } catch(e){}
-      },
-
-      saveStorage() {
-        try {
-          localStorage.setItem('eng_game_count', this.studentCount);
-          localStorage.setItem('eng_game_timer', this.timerDuration);
-          localStorage.setItem('eng_game_auto', this.autoEliminate);
-          localStorage.setItem('eng_game_mode', this.mode);
-          localStorage.setItem('eng_game_bank', JSON.stringify(this.questionBank));
-          localStorage.setItem('eng_game_teams', JSON.stringify(this.teams));
-          localStorage.setItem('eng_game_indiv', JSON.stringify(this.individualScores));
-        } catch(e){}
-      },
-
-      resetRemainingStudents() {
-        this.remainingStudents = Array.from({ length: this.studentCount }, (_, i) => i + 1);
-        this.eliminatedStudents = [];
-        this.updateUI();
-        this.drawWheel();
-      },
-
-      updateUI() {
-        document.getElementById('display-student-count').textContent = `${this.studentCount} Students`;
-        document.getElementById('badge-mode').textContent = this.mode === 'teams' ? 'Team Competition' : 'Individual Mode';
-        document.getElementById('remaining-count-num').textContent = this.remainingStudents.length;
-
-        // Render student status grid
-        const grid = document.getElementById('student-grid');
-        grid.innerHTML = '';
-        for (let i = 1; i <= this.studentCount; i++) {
-          const isRemaining = this.remainingStudents.includes(i);
-          const badge = document.createElement('span');
-          badge.className = `px-2 py-0.5 text-xs rounded-md font-bold transition-all ${
-            isRemaining 
-              ? 'bg-slate-700 text-slate-200 border border-slate-600' 
-              : 'bg-slate-900/40 text-slate-600 border border-slate-800 line-through'
-          }`;
-          badge.textContent = `#${i}`;
-          grid.appendChild(badge);
-        }
-
-        this.renderScoreboard();
-      },
-
-      renderScoreboard() {
-        const list = document.getElementById('scoreboard-list');
-        const label = document.getElementById('scoreboard-type-label');
-        list.innerHTML = '';
-
-        if (this.mode === 'teams') {
-          label.textContent = 'Team Standings';
-          this.teams.forEach((t, idx) => {
-            const div = document.createElement('div');
-            div.className = 'flex items-center justify-between p-3 rounded-xl bg-slate-900/60 border border-slate-700/80';
-            div.innerHTML = `
-              <div class="flex items-center gap-3">
-                <span class="w-3.5 h-3.5 rounded-full shadow-md" style="background-color: ${t.color}"></span>
-                <span class="font-bold text-sm text-slate-200">${t.name}</span>
-              </div>
-              <div class="flex items-center gap-2">
-                <button onclick="GameApp.adjustScore('team', ${idx}, -5)" class="w-6 h-6 bg-slate-800 hover:bg-slate-700 rounded text-slate-400 font-bold text-xs">-</button>
-                <span class="font-display font-bold text-lg text-amber-400 w-10 text-center">${t.score}</span>
-                <button onclick="GameApp.adjustScore('team', ${idx}, 5)" class="w-6 h-6 bg-slate-800 hover:bg-slate-700 rounded text-slate-400 font-bold text-xs">+</button>
-              </div>
-            `;
-            list.appendChild(div);
-          });
-        } else {
-          label.textContent = 'Top Student Scores';
-          const entries = Object.entries(this.individualScores)
-            .sort((a, b) => b[1] - a[1])
-            .slice(0, 5);
-
-          if (entries.length === 0) {
-            list.innerHTML = `<p class="text-xs text-slate-500 italic text-center py-2">No individual scores recorded yet.</p>`;
-          } else {
-            entries.forEach(([student, score]) => {
-              const div = document.createElement('div');
-              div.className = 'flex items-center justify-between p-2.5 rounded-xl bg-slate-900/60 border border-slate-700/80 text-xs';
-              div.innerHTML = `
-                <span class="font-bold text-slate-200">Student #${student}</span>
-                <span class="font-display font-bold text-base text-amber-400">${score} pts</span>
-              `;
-              list.appendChild(div);
-            });
-          }
-        }
-      },
-
-      /* ==========================================================================
-         5. CANVAS WHEEL SPINNER RENDERER & PHYSICS
-         ========================================================================== */
-      drawWheel() {
-        if (!this.ctx) return;
-        const width = this.canvas.width;
-        const height = this.canvas.height;
-        const centerX = width / 2;
-        const centerY = height / 2;
-        const radius = centerX - 10;
-
-        this.ctx.clearRect(0, 0, width, height);
-
-        const list = this.remainingStudents.length > 0 
-          ? this.remainingStudents 
-          : Array.from({ length: this.studentCount }, (_, i) => i + 1);
-
-        const sliceAngle = (2 * Math.PI) / list.length;
-        const colors = ['#f59e0b', '#06b6d4', '#10b981', '#6366f1', '#ec4899', '#8b5cf6'];
-
-        this.ctx.save();
-        this.ctx.translate(centerX, centerY);
-        this.ctx.rotate(this.currentAngle);
-
-        for (let i = 0; i < list.length; i++) {
-          const angleStart = i * sliceAngle;
-          const angleEnd = angleStart + sliceAngle;
-
-          // Draw Slice Segment
-          this.ctx.beginPath();
-          this.ctx.moveTo(0, 0);
-          this.ctx.arc(0, 0, radius, angleStart, angleEnd);
-          this.ctx.closePath();
-          this.ctx.fillStyle = colors[i % colors.length];
-          this.ctx.fill();
-          this.ctx.lineWidth = 2;
-          this.ctx.strokeStyle = '#0f172a';
-          this.ctx.stroke();
-
-          // Draw Student Number Text
-          this.ctx.save();
-          this.ctx.rotate(angleStart + sliceAngle / 2);
-          this.ctx.textAlign = 'right';
-          this.ctx.fillStyle = '#ffffff';
-          this.ctx.font = list.length > 30 ? 'bold 13px Inter' : 'bold 18px Fredoka';
-          this.ctx.shadowColor = 'rgba(0,0,0,0.6)';
-          this.ctx.shadowBlur = 4;
-          this.ctx.fillText(`#${list[i]}`, radius - 18, 6);
-          this.ctx.restore();
-        }
-
-        this.ctx.restore();
-      },
-
-      spinWheel() {
-        if (this.isSpinning) return;
-        if (this.remainingStudents.length === 0) {
-          this.resetRemainingStudents();
-        }
-
-        this.isSpinning = true;
-        document.getElementById('btn-spin').disabled = true;
-
-        const spinDuration = 4500; // ms
-        const startTime = performance.now();
-        const startAngle = this.currentAngle;
-        
-        // Random target rotations (4 to 7 full turns + random slice)
-        const totalRotation = (Math.PI * 2 * (4 + Math.random() * 3)) + (Math.random() * Math.PI * 2);
-
-        const list = this.remainingStudents;
-        const sliceAngle = (2 * Math.PI) / list.length;
-
-        const animateSpin = (now) => {
-          const elapsed = now - startTime;
-          const progress = Math.min(elapsed / spinDuration, 1);
-          
-          // Ease-out cubic formula for deceleration physics
-          const easeOut = 1 - Math.pow(1 - progress, 3);
-          this.currentAngle = startAngle + totalRotation * easeOut;
-
-          // Calculate current slice under top pointer (Pointer is at 3PI/2 = top 12 o'clock)
-          const normalizedAngle = (this.currentAngle % (2 * Math.PI) + (2 * Math.PI)) % (2 * Math.PI);
-          const pointerAngle = (3 * Math.PI / 2 - normalizedAngle + 4 * Math.PI) % (2 * Math.PI);
-          const currentSlice = Math.floor(pointerAngle / sliceAngle);
-
-          if (currentSlice !== this.lastTickSlice) {
-            SoundEngine.tick();
-            this.lastTickSlice = currentSlice;
-          }
-
-          this.drawWheel();
-
-          if (progress < 1) {
-            requestAnimationFrame(animateSpin);
-          } else {
-            this.isSpinning = false;
-            document.getElementById('btn-spin').disabled = false;
-            SoundEngine.spinEnd();
-
-            // Determine Winning Student Number
-            const winningIndex = currentSlice % list.length;
-            this.currentDrawnStudent = list[winningIndex];
-
-            // Open Topic Picker Modal
-            setTimeout(() => {
-              this.openTopicModal(this.currentDrawnStudent);
-            }, 500);
-          }
-        };
-
-        requestAnimationFrame(animateSpin);
-      },
-
-
-      /* ==========================================================================
-         6. TOPIC SELECTION & QUESTION STAGE FLOW
-         ========================================================================== */
-      openTopicModal(studentNum) {
-        document.getElementById('drawn-student-num').textContent = studentNum;
-        document.getElementById('topic-student-ref').textContent = studentNum;
-
-        const topicGrid = document.getElementById('topic-grid');
-        topicGrid.innerHTML = '';
-
-        Object.keys(TOPIC_DEFINITIONS).forEach(catKey => {
-          const cat = TOPIC_DEFINITIONS[catKey];
-          const btn = document.createElement('button');
-          btn.onclick = () => this.pickTopic(catKey);
-          btn.className = `p-4 rounded-2xl bg-gradient-to-br ${cat.color} hover:opacity-90 text-white font-bold flex flex-col items-center justify-center gap-2 shadow-lg transition transform hover:-translate-y-1 cursor-pointer`;
-          btn.innerHTML = `
-            <i class="fa-solid ${cat.icon} text-3xl"></i>
-            <span class="text-xs sm:text-sm font-display">${cat.name}</span>
-          `;
-          topicGrid.appendChild(btn);
-        });
-
-        document.getElementById('modal-topic').classList.remove('hidden');
-      },
-
-      pickTopic(catKey) {
-        document.getElementById('modal-topic').classList.add('hidden');
-
-        let availableQuestions = [];
-        if (catKey === 'random') {
-          availableQuestions = [...this.questionBank];
-        } else {
-          availableQuestions = this.questionBank.filter(q => q.category === catKey);
-        }
-
-        if (availableQuestions.length === 0) {
-          availableQuestions = [...this.questionBank];
-        }
-
-        // Pick random question from filtered list
-        const selectedQ = availableQuestions[Math.floor(Math.random() * availableQuestions.length)];
-        this.currentQuestion = selectedQ;
-
-        // Auto Eliminate Student Number if enabled
-        if (this.autoEliminate && this.remainingStudents.includes(this.currentDrawnStudent)) {
-          this.remainingStudents = this.remainingStudents.filter(s => s !== this.currentDrawnStudent);
-          this.eliminatedStudents.push(this.currentDrawnStudent);
-          this.updateUI();
-          this.drawWheel();
-        }
-
-        this.startQuestionStage(selectedQ);
-      },
-
-      startQuestionStage(q) {
-        const catInfo = TOPIC_DEFINITIONS[q.category] || { name: q.category, icon: 'fa-star' };
-        const fmtInfo = FORMAT_DEFINITIONS[q.format] || { badge: 'Challenge' };
-
-        document.getElementById('stage-student-badge').textContent = `Student #${this.currentDrawnStudent}`;
-        document.getElementById('stage-topic-badge').innerHTML = `<i class="fa-solid ${catInfo.icon}"></i> ${catInfo.name}`;
-        document.getElementById('stage-format-badge').textContent = fmtInfo.badge;
-        document.getElementById('stage-question-text').textContent = `"${q.question}"`;
-        
-        // Reset Hints & Answer Reveals
-        document.getElementById('hint-box').classList.add('hidden');
-        document.getElementById('hint-text').textContent = q.hint || 'No hint available for this question.';
-        document.getElementById('hint-btn-text').textContent = 'Show Hint';
-
-        document.getElementById('answer-box').classList.add('hidden');
-        document.getElementById('answer-text').textContent = q.answer;
-        document.getElementById('answer-btn-text').textContent = 'Reveal Answer';
-
-        document.getElementById('modal-question').classList.remove('hidden');
-
-        // Start Countdown Timer
-        this.startTimer();
-      },
-
-      startTimer() {
-        clearInterval(this.timerInterval);
-        this.timeLeft = this.timerDuration;
-
-        const timerText = document.getElementById('timer-text');
-        const progressCircle = document.getElementById('timer-progress-circle');
-        const totalDash = 264; // Circumference matching r=42%
-
-        const updateCircle = () => {
-          timerText.textContent = this.timeLeft;
-          const offset = totalDash - (this.timeLeft / this.timerDuration) * totalDash;
-          progressCircle.style.strokeDashoffset = offset;
-
-          if (this.timeLeft <= 3) {
-            progressCircle.setAttribute('class', 'text-rose-500 transition-all duration-1000 ease-linear');
-            SoundEngine.timerBeep(true);
-          } else if (this.timeLeft <= 7) {
-            progressCircle.setAttribute('class', 'text-amber-400 transition-all duration-1000 ease-linear');
-            SoundEngine.timerBeep(false);
-          } else {
-            progressCircle.setAttribute('class', 'text-emerald-400 transition-all duration-1000 ease-linear');
-          }
-        };
-
-        updateCircle();
-
-        this.timerInterval = setInterval(() => {
-          this.timeLeft--;
-          if (this.timeLeft >= 0) {
-            updateCircle();
-          } else {
-            clearInterval(this.timerInterval);
-            SoundEngine.buzzer();
-          }
-        }, 1000);
-      },
-
-      toggleHint() {
-        const hintBox = document.getElementById('hint-box');
-        const isHidden = hintBox.classList.contains('hidden');
-        if (isHidden) {
-          hintBox.classList.remove('hidden');
-          document.getElementById('hint-btn-text').textContent = 'Hide Hint';
-        } else {
-          hintBox.classList.add('hidden');
-          document.getElementById('hint-btn-text').textContent = 'Show Hint';
-        }
-      },
-
-      triggerLifeline() {
-        SoundEngine.timerBeep(true);
-        // Display non-intrusive alert toast inside question stage
-        const qText = document.getElementById('stage-question-text');
-        const originalText = qText.textContent;
-        qText.innerHTML = `<span class="text-cyan-400">🤝 LIFELINE USED!</span><br>Student #${this.currentDrawnStudent} may choose 1 classmate to help answer!`;
-        setTimeout(() => {
-          qText.textContent = originalText;
-        }, 3000);
-      },
-
-      toggleAnswer() {
-        const answerBox = document.getElementById('answer-box');
-        const isHidden = answerBox.classList.contains('hidden');
-        if (isHidden) {
-          answerBox.classList.remove('hidden');
-          document.getElementById('answer-btn-text').textContent = 'Hide Answer';
-        } else {
-          answerBox.classList.add('hidden');
-          document.getElementById('answer-btn-text').textContent = 'Reveal Answer';
-        }
-      },
-
-      handleAnswerResult(result) {
-        clearInterval(this.timerInterval);
-
-        if (result === true) {
-          // Correct Answer
-          SoundEngine.fanfare();
-          ConfettiEngine.burst();
-          this.addScore(10);
-          this.logHistory(`Student #${this.currentDrawnStudent}`, 'Correct (+10 pts)', 'emerald');
-          this.closeQuestionModal();
-        } else if (result === 'steal') {
-          // Open for class steal
-          SoundEngine.timerBeep(true);
-          const qText = document.getElementById('stage-question-text');
-          qText.innerHTML = `<span class="text-amber-400">⚡ STEAL TURN OPEN!</span><br>Anyone in the class can raise hand to steal +5 points!`;
-          this.addScore(5);
-          this.logHistory(`Student #${this.currentDrawnStudent}`, 'Steal Opportunity (+5 pts)', 'amber');
-        } else {
-          // Wrong / Time out
-          SoundEngine.buzzer();
-          this.logHistory(`Student #${this.currentDrawnStudent}`, 'Incorrect (0 pts)', 'rose');
-          this.closeQuestionModal();
-        }
-      },
-
-      closeQuestionModal() {
-        clearInterval(this.timerInterval);
-        document.getElementById('modal-question').classList.add('hidden');
-      },
-
-      addScore(pts) {
-        if (this.mode === 'teams') {
-          // Assign score evenly or cycle teams
-          const currentTeamIndex = (this.currentDrawnStudent || 1) % this.teams.length;
-          this.teams[currentTeamIndex].score += pts;
-        } else {
-          const currentScore = this.individualScores[this.currentDrawnStudent] || 0;
-          this.individualScores[this.currentDrawnStudent] = currentScore + pts;
-        }
-        this.saveStorage();
-        this.renderScoreboard();
-      },
-
-      adjustScore(type, target, delta) {
-        if (type === 'team') {
-          this.teams[target].score = Math.max(0, this.teams[target].score + delta);
-        }
-        this.saveStorage();
-        this.renderScoreboard();
-      },
-
-      logHistory(subject, outcome, color) {
-        const logList = document.getElementById('history-list');
-        if (logList.querySelector('p')) logList.innerHTML = '';
-
-        const item = document.createElement('div');
-        item.className = `p-2 rounded-lg bg-slate-900/60 border border-slate-700/60 flex items-center justify-between text-xs`;
-        item.innerHTML = `
-          <span class="font-bold text-slate-200">${subject}</span>
-          <span class="text-${color}-400 font-semibold">${outcome}</span>
-        `;
-        logList.prepend(item);
-      },
-
-
-      /* ==========================================================================
-         7. MODALS & QUESTION BANK MANAGER
-         ========================================================================== */
-      openSetupModal() {
-        document.getElementById('setup-student-count').value = this.studentCount;
-        document.getElementById('setup-timer').value = this.timerDuration;
-        document.getElementById('setup-auto-eliminate').checked = this.autoEliminate;
-        document.getElementById('setup-mode').value = this.mode;
-        
-        this.toggleTeamInputs(this.mode);
-
-        document.getElementById('team-name-0').value = this.teams[0].name;
-        document.getElementById('team-name-1').value = this.teams[1].name;
-        document.getElementById('team-name-2').value = this.teams[2].name;
-        document.getElementById('team-name-3').value = this.teams[3].name;
-
-        document.getElementById('modal-setup').classList.remove('hidden');
-      },
-
-      toggleTeamInputs(mode) {
-        const container = document.getElementById('team-names-container');
-        if (mode === 'teams') {
-          container.classList.remove('hidden');
-        } else {
-          container.classList.add('hidden');
-        }
-      },
-
-      saveSetup(e) {
-        e.preventDefault();
-        const newCount = parseInt(document.getElementById('setup-student-count').value, 10);
-        this.timerDuration = parseInt(document.getElementById('setup-timer').value, 10);
-        this.autoEliminate = document.getElementById('setup-auto-eliminate').checked;
-        this.mode = document.getElementById('setup-mode').value;
-
-        if (this.mode === 'teams') {
-          this.teams[0].name = document.getElementById('team-name-0').value || 'Team Red';
-          this.teams[1].name = document.getElementById('team-name-1').value || 'Team Blue';
-          this.teams[2].name = document.getElementById('team-name-2').value || 'Team Yellow';
-          this.teams[3].name = document.getElementById('team-name-3').value || 'Team Green';
-        }
-
-        if (newCount !== this.studentCount) {
-          this.studentCount = newCount;
-          this.resetRemainingStudents();
-        } else {
-          this.updateUI();
-          this.drawWheel();
-        }
-
-        this.saveStorage();
-        this.closeModal('modal-setup');
-      },
-
-      openEditorModal() {
-        this.renderEditorList();
-        document.getElementById('modal-editor').classList.remove('hidden');
-      },
-
-      renderEditorList() {
-        const filterCat = document.getElementById('editor-category-filter').value;
-        const list = document.getElementById('editor-questions-list');
-        list.innerHTML = '';
-
-        const filtered = filterCat === 'all' 
-          ? this.questionBank 
-          : this.questionBank.filter(q => q.category === filterCat);
-
-        document.getElementById('editor-total-count').textContent = `Total: ${filtered.length} questions`;
-
-        filtered.forEach((q, idx) => {
-          const item = document.createElement('div');
-          item.className = 'p-3 bg-slate-900/60 border border-slate-700/80 rounded-xl flex flex-wrap items-center justify-between gap-2 text-xs';
-          item.innerHTML = `
-            <div class="flex-1 min-w-[200px]">
-              <div class="flex items-center gap-2 mb-1">
-                <span class="px-2 py-0.5 bg-amber-500/20 text-amber-300 rounded font-bold uppercase">${q.category}</span>
-                <span class="px-2 py-0.5 bg-indigo-500/20 text-indigo-300 rounded font-semibold">${q.format}</span>
-              </div>
-              <div class="font-bold text-slate-100 text-sm">"${q.question}"</div>
-              <div class="text-slate-400 mt-0.5"><strong class="text-emerald-400">Ans:</strong> ${q.answer}</div>
-            </div>
-            <button onclick="GameApp.deleteQuestion('${q.id}')" class="px-2.5 py-1.5 bg-rose-600/30 hover:bg-rose-600/50 text-rose-300 border border-rose-500/40 rounded-lg transition">
-              <i class="fa-solid fa-trash"></i>
-            </button>
-          `;
-          list.appendChild(item);
-        });
-      },
-
-      addCustomQuestion(e) {
-        e.preventDefault();
-        const cat = document.getElementById('new-q-cat').value;
-        const format = document.getElementById('new-q-format').value;
-        const text = document.getElementById('new-q-text').value;
-        const ans = document.getElementById('new-q-ans').value;
-        const hint = document.getElementById('new-q-hint').value;
-
-        const newQ = {
-          id: 'custom_' + Date.now(),
-          category: cat,
-          format: format,
-          question: text,
-          answer: ans,
-          hint: hint || ''
-        };
-
-        this.questionBank.unshift(newQ);
-        this.saveStorage();
-        this.renderEditorList();
-        
-        document.getElementById('add-question-form').reset();
-      },
-
-      deleteQuestion(id) {
-        this.questionBank = this.questionBank.filter(q => q.id !== id);
-        this.saveStorage();
-        this.renderEditorList();
-      },
-
-      exportQuestionBank() {
-        const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(this.questionBank, null, 2));
-        const downloadAnchor = document.createElement('a');
-        downloadAnchor.setAttribute("href", dataStr);
-        downloadAnchor.setAttribute("download", `english_questions_${Date.now()}.json`);
-        document.body.appendChild(downloadAnchor);
-        downloadAnchor.click();
-        downloadAnchor.remove();
-      },
-
-      importQuestionBank(event) {
-        const file = event.target.files[0];
-        if (!file) return;
-
-        const reader = new FileReader();
-        reader.onload = (e) => {
-          try {
-            const imported = JSON.parse(e.target.result);
-            if (Array.isArray(imported)) {
-              this.questionBank = imported;
-              this.saveStorage();
-              this.renderEditorList();
-            }
-          } catch(err) {}
-        };
-        reader.readAsText(file);
-      },
-
-      resetDefaultQuestions() {
-        this.questionBank = JSON.parse(JSON.stringify(DEFAULT_QUESTIONS));
-        this.saveStorage();
-        this.renderEditorList();
-      },
-
-      openScoreboardModal() {
-        const list = document.getElementById('modal-score-items');
-        list.innerHTML = '';
-
-        if (this.mode === 'teams') {
-          this.teams.forEach((t, idx) => {
-            const div = document.createElement('div');
-            div.className = 'flex items-center justify-between p-3 rounded-xl bg-slate-900/60 border border-slate-700/80';
-            div.innerHTML = `
-              <div class="flex items-center gap-3">
-                <span class="w-4 h-4 rounded-full" style="background-color: ${t.color}"></span>
-                <span class="font-bold text-slate-200">${t.name}</span>
-              </div>
-              <div class="flex items-center gap-2">
-                <button onclick="GameApp.adjustScore('team', ${idx}, -5)" class="w-7 h-7 bg-slate-800 rounded text-slate-300 font-bold">-</button>
-                <span class="font-display font-bold text-xl text-amber-400 w-12 text-center">${t.score}</span>
-                <button onclick="GameApp.adjustScore('team', ${idx}, 5)" class="w-7 h-7 bg-slate-800 rounded text-slate-300 font-bold">+</button>
-              </div>
-            `;
-            list.appendChild(div);
-          });
-        } else {
-          for (let i = 1; i <= this.studentCount; i++) {
-            const score = this.individualScores[i] || 0;
-            const div = document.createElement('div');
-            div.className = 'flex items-center justify-between p-2.5 rounded-xl bg-slate-900/60 border border-slate-700/80 text-xs';
-            div.innerHTML = `
-              <span class="font-bold text-slate-200">Student #${i}</span>
-              <span class="font-display font-bold text-base text-amber-400">${score} pts</span>
-            `;
-            list.appendChild(div);
-          }
-        }
-
-        document.getElementById('modal-scoreboard').classList.remove('hidden');
-      },
-
-      resetScores() {
-        this.teams.forEach(t => t.score = 0);
-        this.individualScores = {};
-        this.saveStorage();
-        this.renderScoreboard();
-        this.openScoreboardModal();
-      },
-
-      closeModal(id) {
-        document.getElementById(id).classList.add('hidden');
-      },
-
-      toggleSound() {
-        SoundEngine.muted = !SoundEngine.muted;
-        const icon = document.getElementById('sound-icon');
-        const text = document.getElementById('sound-text');
-        if (SoundEngine.muted) {
-          icon.className = 'fa-solid fa-volume-xmark text-rose-400';
-          text.textContent = 'Muted';
-        } else {
-          icon.className = 'fa-solid fa-volume-high text-amber-400';
-          text.textContent = 'Sound ON';
-        }
-      },
-
-      toggleTheme() {
-        document.documentElement.classList.toggle('dark');
-        const icon = document.getElementById('theme-icon');
-        if (document.documentElement.classList.contains('dark')) {
-          icon.className = 'fa-solid fa-moon text-indigo-400';
-        } else {
-          icon.className = 'fa-solid fa-sun text-amber-400';
-        }
-      },
-
-      setupKeyboardShortcuts() {
-        window.addEventListener('keydown', (e) => {
-          // Avoid triggering when writing inside form inputs
-          if (['INPUT', 'SELECT', 'TEXTAREA'].includes(e.target.tagName)) return;
-
-          if (e.code === 'Space') {
-            e.preventDefault();
-            if (!document.getElementById('modal-question').classList.contains('hidden')) return;
-            this.spinWheel();
-          }
-
-          if (!document.getElementById('modal-question').classList.contains('hidden')) {
-            if (e.key === '1' || e.key.toLowerCase() === 'c') {
-              this.handleAnswerResult(true);
-            } else if (e.key === '2' || e.key.toLowerCase() === 's') {
-              this.handleAnswerResult('steal');
-            } else if (e.key === '3' || e.key.toLowerCase() === 'w') {
-              this.handleAnswerResult(false);
-            } else if (e.key.toLowerCase() === 'h') {
-              this.toggleHint();
-            } else if (e.key.toLowerCase() === 'a') {
-              this.toggleAnswer();
-            }
-          }
-        });
-      }
-    };
-
-    // Initialize Game on Window Load
-    window.onload = function() {
-      GameApp.init();
-    };
-  </script>
-
+  <!-- Main JavaScript File -->
+  <script src="script.js"></script>
 </body>
 </html>
